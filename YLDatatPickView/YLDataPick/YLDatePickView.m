@@ -7,10 +7,10 @@
 //
 #define pickerViewHeight 216.0
 
-#import "LeBangDatePickView.h"
+#import "YLDatePickView.h"
 #import "NSDate+Extension.h"
 
-@interface LeBangDatePickView ()<UIPickerViewDelegate,UIPickerViewDataSource>{
+@interface YLDatePickView ()<UIPickerViewDelegate,UIPickerViewDataSource>{
 
     NSInteger  _oldselectsection;
 }
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation LeBangDatePickView
+@implementation YLDatePickView
 
 - (UIView *)BgView{
     if (_BgView == nil) {
@@ -134,12 +134,12 @@
         if (i == 0) {
             [btn setTitle:@"取消" forState:UIControlStateNormal];
             [btn setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
-            btn.frame = CGRectMake(ViewSpacing, 0, 44, 44);
+            btn.frame = CGRectMake(13, 0, 44, 44);
 
         }else{
             [btn setTitle:@"确认" forState:UIControlStateNormal];
             [btn setTitleColor:[UIColor orangeColor] forState:UIControlStateNormal];
-            btn.frame = CGRectMake(self.frame.size.width - ViewSpacing - 44, 0, 44, 44);
+            btn.frame = CGRectMake(self.frame.size.width - 13 - 44, 0, 44, 44);
 
         }
         
@@ -149,7 +149,7 @@
     UILabel * titlelab = [[UILabel alloc]init];
     titlelab.text = @"请选择时间";
     titlelab.textAlignment = NSTextAlignmentCenter;
-    titlelab.frame = CGRectMake(0, 0, self.BgView.width, self.BgView.height);
+    titlelab.frame = CGRectMake(0, 0, self.BgView.frame.size.width, self.BgView.frame.size.height);
     [self.BgView addSubview:titlelab];
 }
 
