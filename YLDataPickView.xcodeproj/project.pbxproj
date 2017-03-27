@@ -330,6 +330,7 @@
 				8E2457051E690F5500C29389 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

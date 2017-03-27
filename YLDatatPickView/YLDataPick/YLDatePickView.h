@@ -2,8 +2,8 @@
 //  LeBangPickView.h
 //  LeBangUser
 //
-//  Created by lebang on 16/5/3.
-//  Copyright © 2016年 qinglin. All rights reserved.
+//  Created by YL on 16/5/3.
+//  Copyright © 2016年 APP. All rights reserved.
 //
 
 

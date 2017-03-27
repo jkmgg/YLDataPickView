@@ -2,8 +2,8 @@
 //  NSDate+Extension.h
 //  LeBang
 //
-//  Created by IOS_MAC PRO on 2017/1/4.
-//  Copyright © 2017年 qinglin. All rights reserved.
+//  Created by YL on 2017/1/4.
+//  Copyright © 2017年 APP. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

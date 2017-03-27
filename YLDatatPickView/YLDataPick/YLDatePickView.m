@@ -2,16 +2,24 @@
 //  LeBangPickView.m
 //  LeBangUser
 //
-//  Created by lebang on 16/5/3.
-//  Copyright © 2016年 qinglin. All rights reserved.
+//  Created by YL on 16/5/3.
+//  Copyright © 2016年 APP. All rights reserved.
 //
+
+
+/*
+ * 问题
+ * 3-3加强可定制性
+ *
+ */
+
 #define pickerViewHeight 216.0
 
 #import "YLDatePickView.h"
 #import "NSDate+Extension.h"
 
 @interface YLDatePickView ()<UIPickerViewDelegate,UIPickerViewDataSource>{
-
+    
     NSInteger  _oldselectsection;
 }
 @property(nonatomic,strong)UIPickerView * Pick;
@@ -70,7 +78,7 @@
         NSDateComponents *comps1 = [calendar components:NSCalendarUnitWeekday fromDate:date1];
         NSDateComponents *comps2 = [calendar components:NSCalendarUnitWeekday fromDate:date2];
         NSDateComponents *comps3 = [calendar components:NSCalendarUnitWeekday fromDate:date3];
-
+        
         NSArray * weekday = @[@"六",@"日",@"一",@"二",@"三",@"四",@"五",@"六"];
         
         _firstData = [[NSMutableArray alloc]initWithObjects:[NSString stringWithFormat:@"%@ 星期%@",[NSDate Detailedstringwithdate:date1 type:@"MM月dd"],weekday[comps1.weekday%7]],[NSString stringWithFormat:@"%@ 星期%@",[NSDate Detailedstringwithdate:date2 type:@"MM月dd"],weekday[comps2.weekday%7]],[NSString stringWithFormat:@"%@ 星期%@",[NSDate Detailedstringwithdate:date3 type:@"MM月dd"],weekday[comps3.weekday%7]], nil];
@@ -107,13 +115,12 @@
         NSDate * date1 = [NSDate date];
         NSDate * date2 = [NSDate dateWithTimeIntervalSinceNow:60*60*24];
         NSDate * date3 = [NSDate dateWithTimeIntervalSinceNow:60*60*24*2];
-        NSLog(@"%lld",[self Dateofdatestr:[self timestrfoDate:date2]]);
         [self.timestamps addObject:[NSString stringWithFormat:@"%lld",[self Dateofdatestr:[self timestrfoDate:date1]]]];
         [self.timestamps addObject:[NSString stringWithFormat:@"%lld",[self Dateofdatestr:[self timestrfoDate:date2]]]];
-
+        
         [self.timestamps addObject:[NSString stringWithFormat:@"%lld",[self Dateofdatestr:[self timestrfoDate:date3]]]];
         self.currentimestamp = [self.timestamps[0] floatValue];
-
+        
     }
     return self;
 }
@@ -121,7 +128,7 @@
 
 
 - (void)initbgView{
-
+    
     UILabel * linelab = [[UILabel alloc]initWithFrame:CGRectMake(0, 44, self.frame.size.width, 0.4)];
     linelab.backgroundColor = [UIColor lightGrayColor];
     [self.BgView addSubview:linelab];
@@ -135,12 +142,12 @@
             [btn setTitle:@"取消" forState:UIControlStateNormal];
             [btn setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
             btn.frame = CGRectMake(13, 0, 44, 44);
-
+            
         }else{
             [btn setTitle:@"确认" forState:UIControlStateNormal];
             [btn setTitleColor:[UIColor orangeColor] forState:UIControlStateNormal];
             btn.frame = CGRectMake(self.frame.size.width - 13 - 44, 0, 44, 44);
-
+            
         }
         
         [btn addTarget:self action:@selector(PickViewbtnclick:) forControlEvents:UIControlEventTouchUpInside];
@@ -196,18 +203,17 @@
         case 0:
         {
             self.firstStr = self.firstData[row];
-            self.currentimestamp = [self.timestamps[row] floatValue];
-
+            
             [self handleDate:self.firstData[row]];
             if (row == 0) {
-        
+                
                 self.thirdData = [NSMutableArray arrayWithObjects:@"00",@"15",@"30",@"45", nil];
             }
             
             [self.Pick selectRow:0 inComponent:1 animated:YES];
             
             [self.Pick selectRow:0 inComponent:2 animated:YES];
-
+            
         }
             break;
         case 1:
@@ -225,7 +231,7 @@
                     
                 }else{
                     
-                      self.thirdData = [NSMutableArray arrayWithObjects:@"00",@"15",@"30",@"45", nil];
+                    self.thirdData = [NSMutableArray arrayWithObjects:@"00",@"15",@"30",@"45", nil];
                 }
                 
             }else{
@@ -251,7 +257,7 @@
         default:
             break;
     }
-
+    
 }
 
 - (void)handleDate:(NSString*)firstdate{
@@ -310,7 +316,7 @@
             [secondarray addObject:[NSString stringWithFormat:@"%d",i]];
         }
         self.secondData = secondarray;
-
+        
         self.thirdData = [NSMutableArray arrayWithObjects:@"00",@"15",@"30",@"45", nil];
     }
     [self.Pick reloadAllComponents];
@@ -332,8 +338,13 @@
             self.thirdStr = self.thirdData[0];
         }
         
+        NSInteger firstindex = [self.firstData indexOfObject:self.firstStr];
+        self.currentimestamp = [self.timestamps[firstindex] floatValue];
+        
         self.currentimestamp = self.currentimestamp+ [self.secondStr integerValue]*3600;
-        self.currentimestamp = self.currentimestamp+ [self.thirdStr intValue]*3600;
+        
+        self.currentimestamp = self.currentimestamp+ ([self.thirdStr intValue])*60;
+        
         [self.delegate pickerView:self didSelectbutton:btn.tag Datestr:[NSString stringWithFormat:@"%@ %@:%@",self.firstStr,self.secondStr,self.thirdStr]];
     }
 }
@@ -359,45 +370,45 @@
     [formatter setDateFormat:@"yyyy-MM-dd HH:mm"];
     NSDate * date = [formatter dateFromString:datestr];
     return [date timeIntervalSince1970];
-
+    
 }
 
 /**
  获取默认选中的时间戳
-
+ 
  @return 默认选中的时间戳
  */
 - (NSString *)defaulttime{
     
     [self handleDate:self.firstData[0]];
-
+    
     long long currentdate = [[NSDate date] timeIntervalSince1970];
     
     return [self timeStr:(currentdate+1800)*1000];
- 
+    
 }
 
 
 /**
  根据时间戳返回格式字符串
-
+ 
  @param timestamp 时间戳
  @return 格式字符串
  */
 - (NSString *)timeStr:(long long)timestamp{
     //返回时间格式
-
+    
     NSCalendar   *calendar = [NSCalendar currentCalendar];
     //1.获取当前的时间
     NSDate *currentDate = [NSDate date];
-
+    
     // 获取年，月，日
     NSDateComponents *components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:currentDate];
     NSInteger currentYear = components.year;
     NSInteger currentMonth = components.month;
     NSInteger currentDay = components.day;
-
-
+    
+    
     //2.获取消息发送时间
     NSDate *msgDate = [NSDate dateWithTimeIntervalSince1970:timestamp/1000.0];
     // 获取年，月，日
@@ -405,7 +416,7 @@
     CGFloat msgYead = components.year;
     CGFloat msgMonth = components.month;
     CGFloat msgDay = components.day;
-
+    
     //3.判断:
     NSDateFormatter *dateFmt = [[NSDateFormatter alloc] init];
     if (currentYear == msgYead
@@ -426,7 +437,7 @@
 - (long long)defaultttimestamp{
     
     self.currentimestamp = [self.timestamps[0] floatValue];
-
+    
     self.currentimestamp = self.currentimestamp + [self.secondStr intValue]*3600;
     self.currentimestamp = self.currentimestamp + [self.thirdStr intValue]/15*900;
     return self.currentimestamp;
