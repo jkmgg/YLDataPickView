@@ -23,6 +23,7 @@
         _datePickView = [YLDatePickView PickView];
         _datePickView.delegate = self;
         _datePickView.frame = CGRectMake(0, 0, self.view.frame.size.width, 216);
+        _datePickView.NumberofDays = 5;
     }
     return _datePickView;
 }

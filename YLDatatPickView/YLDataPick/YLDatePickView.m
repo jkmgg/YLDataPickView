@@ -7,12 +7,6 @@
 //
 
 
-/*
- * 问题
- * 3-3加强可定制性
- *
- */
-
 #define pickerViewHeight 216.0
 
 #import "YLDatePickView.h"
@@ -24,7 +18,7 @@
 }
 @property(nonatomic,strong)UIPickerView * Pick;
 @property(nonatomic,strong)UIView * BgView;
-@property (nonatomic,retain)NSMutableArray *firstData,*secondData,*thirdData,*timestamps;
+@property (nonatomic,retain)NSMutableArray *firstData,*secondData,*thirdData;
 @property (nonatomic,copy)NSString *firstStr,*secondStr,*thirdStr;
 
 
@@ -55,36 +49,6 @@
     return _Pick;
 }
 
-- (NSMutableArray *)timestamps{
-    
-    if (_timestamps == nil) {
-        
-        _timestamps = [NSMutableArray array];
-    }
-    return _timestamps;
-}
-
-
-- (NSMutableArray *)firstData{
-    if (_firstData == nil) {
-        
-        
-        NSDate * date1 = [NSDate date];
-        NSDate * date2 = [NSDate dateWithTimeIntervalSinceNow:60*60*24];
-        NSDate * date3 = [NSDate dateWithTimeIntervalSinceNow:60*60*24*2];
-        
-        NSCalendar * calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-        
-        NSDateComponents *comps1 = [calendar components:NSCalendarUnitWeekday fromDate:date1];
-        NSDateComponents *comps2 = [calendar components:NSCalendarUnitWeekday fromDate:date2];
-        NSDateComponents *comps3 = [calendar components:NSCalendarUnitWeekday fromDate:date3];
-        
-        NSArray * weekday = @[@"六",@"日",@"一",@"二",@"三",@"四",@"五",@"六"];
-        
-        _firstData = [[NSMutableArray alloc]initWithObjects:[NSString stringWithFormat:@"%@ 星期%@",[NSDate Detailedstringwithdate:date1 type:@"MM月dd"],weekday[comps1.weekday%7]],[NSString stringWithFormat:@"%@ 星期%@",[NSDate Detailedstringwithdate:date2 type:@"MM月dd"],weekday[comps2.weekday%7]],[NSString stringWithFormat:@"%@ 星期%@",[NSDate Detailedstringwithdate:date3 type:@"MM月dd"],weekday[comps3.weekday%7]], nil];
-    }
-    return _firstData;
-}
 - (NSMutableArray *)secondData{
     if (_secondData == nil) {
         _secondData = [NSMutableArray array];
@@ -101,6 +65,52 @@
     return _thirdData;
 }
 
+- (void)setNumberofDays:(NSInteger)NumberofDays{
+    
+    _NumberofDays = NumberofDays;
+    [self.firstData removeAllObjects];
+    [self dealFirstDataArray];
+}
+
+- (void)setDateType:(ENUM_DateType)dateType{
+    
+    _dateType = dateType;
+    [self.firstData removeAllObjects];
+    [self dealFirstDataArray];
+}
+
+- (void)dealFirstDataArray{
+    
+    NSString * DateFormattype = @"yyyy-MM-dd";
+    NSMutableArray * dateArray = [NSMutableArray array];
+    NSDate * date;
+    for (int i = 0; i<self.NumberofDays ; i++) {
+        
+        if (i == 0) {
+            date = [NSDate date];
+        }else{
+            date = [[NSDate date] initWithTimeIntervalSinceNow:60*60*24*i];
+        }
+        
+        if (self.dateType == ENUM_DateTypeofNoWeake) {
+            [dateArray addObject:[NSString stringWithFormat:@"%@",[NSDate Detailedstringwithdate:date type:DateFormattype]]];
+        }else if (self.dateType == ENUM_DateTypeofNoYears){
+            NSCalendar * calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+            NSDateComponents *comps = [calendar components:NSCalendarUnitWeekday fromDate:date];
+            NSArray * weekday = @[@"六",@"日",@"一",@"二",@"三",@"四",@"五",@"六"];
+            [dateArray addObject:[NSString stringWithFormat:@"星期%@",weekday[comps.weekday%7]]];
+        }else{
+            NSCalendar * calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+            NSDateComponents *comps = [calendar components:NSCalendarUnitWeekday fromDate:date];
+            NSArray * weekday = @[@"六",@"日",@"一",@"二",@"三",@"四",@"五",@"六"];
+            [dateArray addObject:[NSString stringWithFormat:@"%@ 星期%@",[NSDate Detailedstringwithdate:date type:DateFormattype],weekday[comps.weekday%7]]];
+        }
+    }
+    self.firstData = dateArray;
+    [self handleDate:dateArray[0]];
+    [self.Pick reloadAllComponents];
+}
+
 + (instancetype)PickView{
     return [[self alloc]init];
 }
@@ -109,24 +119,14 @@
     
     frame = [UIApplication sharedApplication].keyWindow.bounds;
     if (self = [super initWithFrame:frame]) {
+        
         [self initbgView];
-        [self defaulttime];
-        
-        NSDate * date1 = [NSDate date];
-        NSDate * date2 = [NSDate dateWithTimeIntervalSinceNow:60*60*24];
-        NSDate * date3 = [NSDate dateWithTimeIntervalSinceNow:60*60*24*2];
-        [self.timestamps addObject:[NSString stringWithFormat:@"%lld",[self Dateofdatestr:[self timestrfoDate:date1]]]];
-        [self.timestamps addObject:[NSString stringWithFormat:@"%lld",[self Dateofdatestr:[self timestrfoDate:date2]]]];
-        
-        [self.timestamps addObject:[NSString stringWithFormat:@"%lld",[self Dateofdatestr:[self timestrfoDate:date3]]]];
-        self.currentimestamp = [self.timestamps[0] floatValue];
-        
+        if (self.NumberofDays == 0) {
+            self.NumberofDays = 3;
+        }
     }
     return self;
 }
-
-
-
 - (void)initbgView{
     
     UILabel * linelab = [[UILabel alloc]initWithFrame:CGRectMake(0, 44, self.frame.size.width, 0.4)];
@@ -163,7 +163,13 @@
 
 # pragma mark - pickview 代理
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView{
-    return 3;
+    if (self.dateType == ENUM_DateTypeofNoHours) {
+        return 1;
+    }else  if (self.dateType == ENUM_DateTypeofNoYears) {
+        return 2;
+    }else{
+        return 3;
+    }
 }
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component{
@@ -179,7 +185,11 @@
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component{
     
     if (component == 0) {
-        return 180;
+        if (self.dateType == ENUM_DateTypeofNoWeake) {
+            return 180;
+        }else{
+            return 220;
+        }
     }
     return 50;
 }
@@ -193,7 +203,6 @@
     }else{
         return [self.thirdData objectAtIndex:row];
     }
-    
 }
 
 
@@ -338,14 +347,23 @@
             self.thirdStr = self.thirdData[0];
         }
         
-        NSInteger firstindex = [self.firstData indexOfObject:self.firstStr];
-        self.currentimestamp = [self.timestamps[firstindex] floatValue];
+        NSString * selectdatestr;
         
-        self.currentimestamp = self.currentimestamp+ [self.secondStr integerValue]*3600;
+        if (self.dateType == ENUM_DateTypeofNoHours) {
+            selectdatestr = [NSString stringWithFormat:@"%@",self.firstStr];
+        }else{
+            selectdatestr = [NSString stringWithFormat:@"%@ %@:%@",self.firstStr,self.secondStr,self.thirdStr];
+        }
         
-        self.currentimestamp = self.currentimestamp+ ([self.thirdStr intValue])*60;
-        
-        [self.delegate pickerView:self didSelectbutton:btn.tag Datestr:[NSString stringWithFormat:@"%@ %@:%@",self.firstStr,self.secondStr,self.thirdStr]];
+        //NSString转NSDate
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init] ;
+        [formatter setDateFormat:@"yyyy-MM-dd HH:mm"];
+        NSString * datestr = [NSString stringWithFormat:@"%@ %@:%@",self.firstStr,self.secondStr,self.thirdStr];
+        NSString * detalstr = [NSString stringWithFormat:@"%@ %@",[datestr componentsSeparatedByString:@" "][0],[datestr componentsSeparatedByString:@" "][2]];
+        NSDate *date = [formatter dateFromString:detalstr];
+        self.currentimestamp =  [date timeIntervalSince1970];
+
+        [self.delegate pickerView:self didSelectbutton:btn.tag Datestr:selectdatestr];
     }
 }
 
@@ -372,22 +390,6 @@
     return [date timeIntervalSince1970];
     
 }
-
-/**
- 获取默认选中的时间戳
- 
- @return 默认选中的时间戳
- */
-- (NSString *)defaulttime{
-    
-    [self handleDate:self.firstData[0]];
-    
-    long long currentdate = [[NSDate date] timeIntervalSince1970];
-    
-    return [self timeStr:(currentdate+1800)*1000];
-    
-}
-
 
 /**
  根据时间戳返回格式字符串
@@ -431,16 +433,6 @@
         dateFmt.dateFormat= @"MM月dd HH:mm";
     }
     return [dateFmt stringFromDate:msgDate];
-}
-
-
-- (long long)defaultttimestamp{
-    
-    self.currentimestamp = [self.timestamps[0] floatValue];
-    
-    self.currentimestamp = self.currentimestamp + [self.secondStr intValue]*3600;
-    self.currentimestamp = self.currentimestamp + [self.thirdStr intValue]/15*900;
-    return self.currentimestamp;
 }
 
 
